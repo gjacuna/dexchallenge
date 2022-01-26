@@ -23,6 +23,9 @@ import {
   NetworkDisplay,
   FaucetHint,
   NetworkSwitch,
+  TokenBalance,
+  Swap,
+  DexSwapper,
 } from "./components";
 import { NETWORKS, ALCHEMY_KEY } from "./constants";
 import externalContracts from "./contracts/external_contracts";
@@ -280,7 +283,15 @@ function App(props) {
       <Switch>
         <Route exact path="/">
           {/* pass in any web3 props to this Home component. For example, yourLocalBalance */}
-          <Home yourLocalBalance={yourLocalBalance} readContracts={readContracts} />
+          {/* <Home yourLocalBalance={yourLocalBalance} readContracts={readContracts} /> */}
+          {/* <Swap selectedProvider={mainnetProvider} address={address}/> */}
+          <DexSwapper 
+            localProvider={localProvider}
+            address={address}
+            readContracts={readContracts}
+            writeContracts={writeContracts}
+            tx={tx}
+          />
         </Route>
         <Route exact path="/debug">
           {/*
@@ -290,7 +301,16 @@ function App(props) {
             */}
 
           <Contract
-            name="YourContract"
+            name="Dex"
+            price={price}
+            signer={userSigner}
+            provider={localProvider}
+            address={address}
+            blockExplorer={blockExplorer}
+            contractConfig={contractConfig}
+          />
+          <Contract
+            name="KoyweToken"
             price={price}
             signer={userSigner}
             provider={localProvider}
@@ -380,6 +400,12 @@ function App(props) {
             blockExplorer={blockExplorer}
           />
         </div>
+        <TokenBalance
+            contracts = {readContracts}
+            name = {"KoyweToken"}
+            address = {address}
+            dollarMultiplier = {2000}
+          />
         {yourLocalBalance.lte(ethers.BigNumber.from("0")) && (
           <FaucetHint localProvider={localProvider} targetNetwork={targetNetwork} address={address} />
         )}

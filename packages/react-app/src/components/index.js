@@ -22,3 +22,4 @@ export { default as NetworkDisplay } from "./NetworkDisplay";
 export { default as FaucetHint } from "./FaucetHint";
 export { default as NetworkSwitch } from "./NetworkSwitch";
 export { default as MultiAddressInput } from "./MultiAddressInput";
+export { default as DexSwapper } from "./DexSwapper";
