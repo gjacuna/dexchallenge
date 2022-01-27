@@ -46,7 +46,7 @@ Main inspiration is this article: [Minimum Viable Exchange](https://medium.com/@
 
 Things to look at in this proposal
 
-🔏 There's 2 smart contracts `KoyweToken.sol` and `Dex.sol` in `packages/hardhat/contracts`. There first one is the ERC20 Token you will be able to swap for ETH, the second one is the AMM (Automated Market Maker). You can deposit or withdraw liquidity from the contract, sharing the fee commissions with it! 🤑
+🔏 There's 2 smart contracts `KoyweToken.sol` and `Dex.sol` in `packages/hardhat/contracts`. The first one is the ERC20 Token you will be able to swap for ETH, the second one is the AMM (Automated Market Maker). You can deposit or withdraw liquidity from the contract, sharing the fee commissions with it! 🤑
 
 📝 Check out `App.jsx` in `packages/react-app/src` to see the changes implemented there. Be sure to check `components/DexSwapper` out to see the component I built on top of the Swap component parts.
 
