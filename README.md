@@ -53,13 +53,13 @@ Things to look at in this proposal
 💼 There's also 2 basic deployment scripts in `packages/hardhat/deploy`, just to get things started for the market. <s>Make sure you change the address in one of them to receive the remaining tokens on your local burner wallet.</s>
 
 # NEW:
-💎 LPs are here! Deposit ETH-KOY pairs to become an LP partner! Withdraw liquidity to take those commissions home! Be careful with arbitragers though.
+💎 LPs are here! Deposit ETH-KOY pairs to become an LP partner! Withdraw liquidity to take those commissions home! Be careful with arbitragers though. There's a new component for that: `components/DexSwapperLP`. Check it out.
 
-🪤 A friend from past challenges has appeared. Added a Vendor to game the markets! Buy and/or sell tokens to the Vendor to arbitrage them tokens. Check its contract in `packages/hardhat/contracts` and the new deployment file in `packages/hardhat/deploy`. Now you find 3 files there.
+🪤 A friend from past challenges has appeared. Added a Vendor to game the markets! Buy and/or sell tokens to the Vendor to arbitrage them tokens. Check its contract in `packages/hardhat/contracts` and the new deployment file in `packages/hardhat/deploy`. Now you find 3 files there. Tinker with the initial liquidity of the DEX if you want, or the Vendor price.
 
 📜 Check the trade history, any familiar addresses?
 
-Tinker all you want!
+Tinker all you want! Time to manipulate the markets!
 
 📱 Open http://localhost:3000 to see the ap
 
