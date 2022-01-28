@@ -68,15 +68,17 @@ function DexSwapper({ localProvider, readContracts, writeContracts, address, tx 
 
   const getPrice = (inputAmount) =>
   {
-    var inputReserve = contractEthBalance;
-    var outputReserve = contractTokenBalance;
-    if (tokenIn !== "ETH"){
-      inputReserve = contractTokenBalance;
-      outputReserve = contractEthBalance;
+    if(contractEthBalance && contractTokenBalance){
+      var inputReserve = contractEthBalance;
+      var outputReserve = contractTokenBalance;
+      if (tokenIn !== "ETH"){
+        inputReserve = contractTokenBalance;
+        outputReserve = contractEthBalance;
+      }
+      
+      const price = inputAmount*(10**18)*997*outputReserve/(inputReserve*1000+inputAmount*(10**18)*997);
+      return parseFloat(ethers.utils.formatUnits(price.toString(), 18)).toPrecision(6);
     }
-    
-    const price = inputAmount*(10**18)*997*outputReserve/(inputReserve*1000+inputAmount*(10**18)*997);
-    return parseFloat(ethers.utils.formatUnits(price.toString(), 18)).toPrecision(6);
   };
 
   const setBalances = async () => {
@@ -166,7 +168,7 @@ function DexSwapper({ localProvider, readContracts, writeContracts, address, tx 
     ? parseFloat(ethers.utils.formatUnits(balanceIn, 18)) < amountIn
     : null;
 
-  const rawPrice = amountIn ? getPrice(amountIn) : null;
+  const rawPrice = amountIn ? getPrice(amountIn)/amountIn : getPrice(1);
   
   const priceDescription = rawPrice
     ? invertPrice
@@ -242,6 +244,7 @@ function DexSwapper({ localProvider, readContracts, writeContracts, address, tx 
       }
     >
       <Space direction="vertical">
+        <Row justify="center" align="middle">Current DEX Price: {priceWidget}</Row>
         <Row justify="center" align="middle">
           <Card
             size="small"

@@ -1,4 +1,4 @@
-import { Button, Col, Menu, Row } from "antd";
+import { Button, Card, Col, Input, Menu, Row, Space } from "antd";
 import "antd/dist/antd.css";
 import {
   useBalance,
@@ -14,6 +14,7 @@ import { Link, Route, Switch, useLocation } from "react-router-dom";
 import "./App.css";
 import {
   Account,
+  Balance,
   Contract,
   Faucet,
   GasGauge,
@@ -24,8 +25,10 @@ import {
   FaucetHint,
   NetworkSwitch,
   TokenBalance,
+  Events,
   Swap,
   DexSwapper,
+  DexSwapperLP,
 } from "./components";
 import { NETWORKS, ALCHEMY_KEY } from "./constants";
 import externalContracts from "./contracts/external_contracts";
@@ -247,6 +250,35 @@ function App(props) {
 
   const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name.indexOf("local") !== -1;
 
+  const vendorAddress = readContracts && readContracts.KoyweVendor && readContracts.KoyweVendor.address;
+
+  const vendorTokenBalance = useContractReader(readContracts, "KoyweToken", "balanceOf", [vendorAddress]);
+  console.log("🏵 vendorTokenBalance:", vendorTokenBalance ? ethers.utils.formatEther(vendorTokenBalance) : "...");
+
+  const tokensPerEth = useContractReader(readContracts, "KoyweVendor", "tokensPerEth");
+  console.log("🏦 tokensPerEth:", tokensPerEth ? tokensPerEth.toString() : "...");
+
+  const [tokenBuyAmount, setTokenBuyAmount] = useState();
+  const [tokenSellAmount, setTokenSellAmount] = useState();
+  
+  const [isSellAmountApproved, setIsSellAmountApproved] = useState();
+  const ethCostToPurchaseTokens =
+    tokenBuyAmount && tokensPerEth && ethers.utils.parseEther("" + tokenBuyAmount / parseFloat(tokensPerEth));
+  const ethCostToSellTokens =
+    tokenSellAmount && tokensPerEth && ethers.utils.parseEther("" + tokenSellAmount / parseFloat(tokensPerEth));
+
+  const vendorApproval = useContractReader(readContracts, "KoyweToken", "allowance", [
+    address, vendorAddress
+  ]);
+
+  useEffect(()=>{
+    const tokenSellAmountBN = tokenSellAmount && ethers.utils.parseEther("" + tokenSellAmount)
+    setIsSellAmountApproved(vendorApproval && tokenSellAmount && vendorApproval.gte(tokenSellAmountBN))
+  },[tokenSellAmount, readContracts])
+
+  const [buying, setBuying] = useState();
+  const [selling, setSelling] = useState();
+
   return (
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
@@ -261,22 +293,19 @@ function App(props) {
       />
       <Menu style={{ textAlign: "center", marginTop: 40 }} selectedKeys={[location.pathname]} mode="horizontal">
         <Menu.Item key="/">
-          <Link to="/">App Home</Link>
+          <Link to="/">DEX ♻️</Link>
+        </Menu.Item>
+        <Menu.Item key="/lp">
+          <Link to="/lp">LPs Only 💎</Link>
+        </Menu.Item>
+        <Menu.Item key="/trades">
+          <Link to="/trades">Trade History 📜</Link>
+        </Menu.Item>
+        <Menu.Item key="/vendor">
+          <Link to="/vendor">Token Vendor 🪤</Link>
         </Menu.Item>
         <Menu.Item key="/debug">
-          <Link to="/debug">Debug Contracts</Link>
-        </Menu.Item>
-        <Menu.Item key="/hints">
-          <Link to="/hints">Hints</Link>
-        </Menu.Item>
-        <Menu.Item key="/exampleui">
-          <Link to="/exampleui">ExampleUI</Link>
-        </Menu.Item>
-        <Menu.Item key="/mainnetdai">
-          <Link to="/mainnetdai">Mainnet DAI</Link>
-        </Menu.Item>
-        <Menu.Item key="/subgraph">
-          <Link to="/subgraph">Subgraph</Link>
+          <Link to="/debug">Debug Contracts 🪲</Link>
         </Menu.Item>
       </Menu>
 
@@ -285,6 +314,12 @@ function App(props) {
           {/* pass in any web3 props to this Home component. For example, yourLocalBalance */}
           {/* <Home yourLocalBalance={yourLocalBalance} readContracts={readContracts} /> */}
           {/* <Swap selectedProvider={mainnetProvider} address={address}/> */}
+          <div style={{ width: 500, margin: "auto"}}>
+              <h1 style={{ padding: 8, marginTop: 32 }}>Koywe's Decentralized Exchange</h1>
+              <p>Check it out, you can now exchange 🌳  Koywe Tokens for ETH in a decentralized way. Cool.</p>
+              <p>Go to the 🪤  Vendor Machine as well, which is a little more centralized (not evil though).</p>
+              <p>Do you think you can manipulate the DEX to take advantage of the Vendor or vice versa?</p>
+          </div>
           <DexSwapper 
             localProvider={localProvider}
             address={address}
@@ -318,17 +353,51 @@ function App(props) {
             blockExplorer={blockExplorer}
             contractConfig={contractConfig}
           />
-        </Route>
-        <Route path="/hints">
-          <Hints
-            address={address}
-            yourLocalBalance={yourLocalBalance}
-            mainnetProvider={mainnetProvider}
+          <Contract
+            name="KoyweVendor"
             price={price}
+            signer={userSigner}
+            provider={localProvider}
+            address={address}
+            blockExplorer={blockExplorer}
+            contractConfig={contractConfig}
           />
         </Route>
-        <Route path="/exampleui">
-          <ExampleUI
+        <Route path="/lp">
+          <DexSwapperLP 
+            localProvider={localProvider}
+            address={address}
+            readContracts={readContracts}
+            writeContracts={writeContracts}
+            tx={tx}
+          />
+        </Route>
+        <Route path="/trades">
+          <Events
+            contracts={readContracts}
+            contractName="Dex"
+            eventName="SwapTokens"
+            localProvider={localProvider}
+            mainnetProvider={mainnetProvider}
+            startBlock={1}
+          />
+          <Events
+            contracts={readContracts}
+            contractName="Dex"
+            eventName="DepositLiquidity"
+            localProvider={localProvider}
+            mainnetProvider={mainnetProvider}
+            startBlock={1}
+          />
+          <Events
+            contracts={readContracts}
+            contractName="Dex"
+            eventName="WithdrawLiquidity"
+            localProvider={localProvider}
+            mainnetProvider={mainnetProvider}
+            startBlock={1}
+          />
+          {/* <ExampleUI
             address={address}
             userSigner={userSigner}
             mainnetProvider={mainnetProvider}
@@ -339,37 +408,97 @@ function App(props) {
             writeContracts={writeContracts}
             readContracts={readContracts}
             purpose={purpose}
-          />
+          /> */}
         </Route>
-        <Route path="/mainnetdai">
-          <Contract
-            name="DAI"
-            customContract={mainnetContracts && mainnetContracts.contracts && mainnetContracts.contracts.DAI}
-            signer={userSigner}
-            provider={mainnetProvider}
-            address={address}
-            blockExplorer="https://etherscan.io/"
-            contractConfig={contractConfig}
-            chainId={1}
-          />
-          {/*
-            <Contract
-              name="UNI"
-              customContract={mainnetContracts && mainnetContracts.contracts && mainnetContracts.contracts.UNI}
-              signer={userSigner}
-              provider={mainnetProvider}
-              address={address}
-              blockExplorer="https://etherscan.io/"
-            />
-            */}
-        </Route>
-        <Route path="/subgraph">
-          <Subgraph
-            subgraphUri={props.subgraphUri}
-            tx={tx}
-            writeContracts={writeContracts}
-            mainnetProvider={mainnetProvider}
-          />
+        <Route path="/vendor">
+        <Space>
+              <div style={{ padding: 8 }}>
+                <div>Available Supply to Buy:</div>
+                <TokenBalance balance={vendorTokenBalance} fontSize={64} />
+              </div>
+            </Space>
+            <div style={{ padding: 8 }}>{tokensPerEth && tokensPerEth.toNumber()} tokens per ETH</div>
+            <Space>
+              <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
+                <Card title="Buy Tokens" >
+                  
+
+                  <div style={{ padding: 8 }}>
+                    <Input
+                      style={{ textAlign: "center" }}
+                      placeholder={"amount of tokens to buy"}
+                      value={tokenBuyAmount}
+                      onChange={e => {
+                        setTokenBuyAmount(e.target.value);
+                      }}
+                    />
+                    <Balance balance={ethCostToPurchaseTokens} dollarMultiplier={price} />
+                  </div>
+
+                  <div style={{ padding: 8 }}>
+                    <Button
+                      type={"primary"}
+                      loading={buying}
+                      onClick={async () => {
+                        setBuying(true);
+                        await tx(writeContracts.KoyweVendor.buyTokens({ value: ethCostToPurchaseTokens }));
+                        setBuying(false);
+                      }}
+                    >
+                      Buy Tokens
+                    </Button>
+                  </div>
+                </Card>
+              </div>
+              <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
+                <Card title="Sell Tokens">
+                  
+                  <div style={{ padding: 8 }}>
+                    <Input
+                      style={{ textAlign: "center" }}
+                      placeholder={"amount of tokens to sell"}
+                      value={tokenSellAmount}
+                      onChange={e => {
+                        setTokenSellAmount(e.target.value);
+                      }}
+                    />
+                    <Balance balance={ethCostToSellTokens} dollarMultiplier={price} />
+                  </div>
+                  {isSellAmountApproved?
+
+                    <div style={{ padding: 8 }}>
+                      <Button
+                        type={"primary"}
+                        loading={selling}
+                        onClick={async () => {
+                          setSelling(true);
+                          await tx(writeContracts.KoyweVendor.sellTokens(tokenSellAmount && ethers.utils.parseEther(tokenSellAmount)));
+                          setSelling(false);
+                        }}
+                      >
+                        Sell Tokens
+                      </Button>
+                    </div>
+                    :
+                    <div style={{ padding: 8 }}>
+                      <Button
+                        type={"primary"}
+                        loading={selling}
+                        onClick={async () => {
+                          setSelling(true);
+                          await tx(writeContracts.KoyweToken.approve(readContracts.KoyweVendor.address, tokenSellAmount && ethers.utils.parseEther(tokenSellAmount)));
+                          setSelling(false);
+                        }}
+                      >
+                        Approve Tokens
+                      </Button>
+                    </div>
+                  }
+
+
+                </Card>
+              </div>
+            </Space>
         </Route>
       </Switch>
 
@@ -400,12 +529,11 @@ function App(props) {
             blockExplorer={blockExplorer}
           />
         </div>
-        <TokenBalance
+        🌳<TokenBalance
             contracts = {readContracts}
             name = {"KoyweToken"}
             address = {address}
-            dollarMultiplier = {2000}
-          />
+        />
         {yourLocalBalance.lte(ethers.BigNumber.from("0")) && (
           <FaucetHint localProvider={localProvider} targetNetwork={targetNetwork} address={address} />
         )}

@@ -25,7 +25,14 @@ export default function Events({ contracts, contractName, eventName, localProvid
 
   return (
     <div style={{ width: 600, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
-      <h2>Events {eventName}</h2>
+      <h2>{eventName} Events<br/>
+        {eventName === "SwapTokens" ?
+          "Address | Trade | AmountIn | AmountOut" :
+          eventName === "DepositLiquidity" ?
+            "Address | Liquidity Minted | ETH in | KOY in" :
+            "Address | Liquidity Withdrawn | ETH out | KOY out"
+        }
+      </h2>
       <List
         bordered
         dataSource={events}

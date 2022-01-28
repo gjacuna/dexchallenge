@@ -50,15 +50,18 @@ Things to look at in this proposal
 
 📝 Check out `App.jsx` in `packages/react-app/src` to see the changes implemented there. Be sure to check `components/DexSwapper` out to see the component I built on top of the Swap component parts.
 
-💼 There's also 2 basic deployment scripts in `packages/hardhat/deploy`, just to get things started for the market. Make sure you change the address in one of them to receive the remaining tokens on your local burner wallet.
+💼 There's also 2 basic deployment scripts in `packages/hardhat/deploy`, just to get things started for the market. <s>Make sure you change the address in one of them to receive the remaining tokens on your local burner wallet.</s>
+
+# NEW:
+💎 LPs are here! Deposit ETH-KOY pairs to become an LP partner! Withdraw liquidity to take those commissions home! Be careful with arbitragers though.
+
+🪤 A friend from past challenges has appeared. Added a Vendor to game the markets! Buy and/or sell tokens to the Vendor to arbitrage them tokens. Check its contract in `packages/hardhat/contracts` and the new deployment file in `packages/hardhat/deploy`. Now you find 3 files there.
+
+📜 Check the trade history, any familiar addresses?
 
 Tinker all you want!
 
-📱 Open http://localhost:3000 to see the app
-
-# TO DOs
-
-Add custom components to deposit and withdraw liquidity.
+📱 Open http://localhost:3000 to see the ap
 
 # 📚 Documentation
 

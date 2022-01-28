@@ -35,7 +35,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   console.log("\n 🏵  Approving Dex to take our KoyweTokens...\n");
   await koyweToken.approve(dex.address, ethers.utils.parseEther("100") );
   console.log("\n 🏵  Initializing the dex...\n");
-  await dex.init(ethers.utils.parseEther("100"), {value:ethers.utils.parseEther("100")});
+  await dex.init(ethers.utils.parseEther("100"), {value:ethers.utils.parseEther("1")});
   /*  await YourContract.setPurpose("Hello");
   
     To take ownership of yourContract using the ownable library uncomment next line and add the 

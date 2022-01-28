@@ -21,6 +21,10 @@ contract Dex {
     token = IERC20(_token_addr);
   }
 
+  function getLiquidity(address lp) public view returns(uint256) {
+    return liquidity[lp];
+  }
+
   function init(uint256 tokens) public payable returns (uint256) {
     require(totalLiquidity==0,"DEX:init - already has liquidity");
     totalLiquidity = address(this).balance;
